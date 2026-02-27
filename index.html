@@ -1,0 +1,1663 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>NotionMail – Send Mass Emails Directly From Notion</title>
+
+    <!-- Google Analytics GA4 — replace G-XXXXXXXXXX with your Measurement ID -->
+    <script
+      async
+      src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"
+    ></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag("js", new Date());
+      gtag("config", "G-XXXXXXXXXX");
+
+      function trackCTA(location) {
+        gtag("event", "cta_click", {
+          event_category: "engagement",
+          event_label: "hero_preorder",
+          cta_location: location,
+        });
+      }
+    </script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      :root {
+        --black: #0e0e0e;
+        --off-white: #f5f4f0;
+        --warm-gray: #e8e6e0;
+        --mid-gray: #9b9890;
+        --accent: #e8532a;
+        --accent-dark: #c94320;
+        --notion-bg: #ffffff;
+        --notion-border: #e8e6e0;
+        --notion-text: #1e1e1e;
+        --notion-subtle: #6b6b6b;
+        --notion-hover: #f5f5f5;
+        --notion-blue: #2383e2;
+        --notion-green: #0f8a5f;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        font-family: "DM Sans", sans-serif;
+        background: var(--off-white);
+        color: var(--black);
+        overflow-x: hidden;
+      }
+
+      /* ─── NAV ─── */
+      nav {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 100;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 18px 48px;
+        background: rgba(245, 244, 240, 0.92);
+        backdrop-filter: blur(12px);
+        border-bottom: 1px solid var(--warm-gray);
+      }
+
+      .nav-logo {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-weight: 600;
+        font-size: 15px;
+        color: var(--black);
+        text-decoration: none;
+      }
+
+      .logo-dot {
+        width: 22px;
+        height: 22px;
+        background: var(--accent);
+        border-radius: 5px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .logo-dot svg {
+        width: 13px;
+        height: 13px;
+        fill: white;
+      }
+
+      .nav-cta {
+        background: var(--black);
+        color: white;
+        border: none;
+        padding: 9px 20px;
+        border-radius: 8px;
+        font-family: "DM Sans", sans-serif;
+        font-size: 13px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background 0.2s;
+        text-decoration: none;
+      }
+      .nav-cta:hover {
+        background: #333;
+      }
+
+      /* ─── HERO ─── */
+      .hero {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 120px 24px 80px;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .hero::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background:
+          radial-gradient(
+            ellipse 700px 500px at 60% 30%,
+            rgba(232, 83, 42, 0.06) 0%,
+            transparent 70%
+          ),
+          radial-gradient(
+            ellipse 400px 400px at 20% 70%,
+            rgba(232, 83, 42, 0.04) 0%,
+            transparent 60%
+          );
+        pointer-events: none;
+      }
+
+      .hero-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        background: white;
+        border: 1px solid var(--warm-gray);
+        border-radius: 100px;
+        padding: 6px 14px 6px 10px;
+        font-size: 12.5px;
+        font-weight: 500;
+        color: var(--black);
+        margin-bottom: 36px;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+        animation: fadeUp 0.6s ease both;
+      }
+
+      .badge-dot {
+        width: 7px;
+        height: 7px;
+        background: var(--accent);
+        border-radius: 50%;
+        animation: pulse 2s infinite;
+      }
+
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 1;
+          transform: scale(1);
+        }
+        50% {
+          opacity: 0.6;
+          transform: scale(0.8);
+        }
+      }
+
+      h1 {
+        font-family: "Instrument Serif", Georgia, serif;
+        font-size: clamp(38px, 6vw, 72px);
+        font-weight: 400;
+        line-height: 1.08;
+        color: var(--black);
+        max-width: 820px;
+        margin-bottom: 24px;
+        animation: fadeUp 0.7s 0.1s ease both;
+      }
+
+      h1 em {
+        font-style: italic;
+        color: var(--accent);
+      }
+
+      .hero-sub {
+        font-size: clamp(16px, 2vw, 19px);
+        color: #555;
+        font-weight: 300;
+        line-height: 1.6;
+        max-width: 540px;
+        margin-bottom: 44px;
+        animation: fadeUp 0.7s 0.2s ease both;
+      }
+
+      .hero-actions {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 12px;
+        animation: fadeUp 0.7s 0.3s ease both;
+      }
+
+      .btn-primary {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        background: var(--accent);
+        color: white;
+        font-family: "DM Sans", sans-serif;
+        font-size: 16px;
+        font-weight: 600;
+        padding: 16px 36px;
+        border: none;
+        border-radius: 12px;
+        cursor: pointer;
+        text-decoration: none;
+        transition:
+          background 0.18s,
+          transform 0.18s,
+          box-shadow 0.18s;
+        box-shadow: 0 4px 20px rgba(232, 83, 42, 0.35);
+      }
+      .btn-primary:hover {
+        background: var(--accent-dark);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 28px rgba(232, 83, 42, 0.4);
+      }
+      .btn-primary:active {
+        transform: translateY(0);
+      }
+
+      .btn-arrow {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 22px;
+        height: 22px;
+        background: rgba(255, 255, 255, 0.25);
+        border-radius: 50%;
+      }
+
+      .hero-social-proof {
+        font-size: 12px;
+        color: var(--mid-gray);
+        font-weight: 400;
+      }
+
+      @keyframes fadeUp {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      /* ─── MOCKUP SECTION ─── */
+      .mockup-section {
+        padding: 20px 24px 100px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        animation: fadeUp 0.8s 0.4s ease both;
+      }
+
+      .mockup-label {
+        font-size: 11.5px;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--mid-gray);
+        margin-bottom: 20px;
+      }
+
+      .mockup-wrapper {
+        width: 100%;
+        max-width: 900px;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow:
+          0 0 0 1px rgba(0, 0, 0, 0.08),
+          0 24px 80px rgba(0, 0, 0, 0.12),
+          0 8px 24px rgba(0, 0, 0, 0.06);
+        background: var(--notion-bg);
+      }
+
+      /* Notion-style window chrome */
+      .window-chrome {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 16px;
+        background: #f9f9f8;
+        border-bottom: 1px solid var(--notion-border);
+      }
+
+      .chrome-dot {
+        width: 11px;
+        height: 11px;
+        border-radius: 50%;
+      }
+      .chrome-dot.red {
+        background: #ff5f57;
+      }
+      .chrome-dot.yellow {
+        background: #febc2e;
+      }
+      .chrome-dot.green {
+        background: #28c840;
+      }
+
+      .chrome-address {
+        flex: 1;
+        text-align: center;
+        font-size: 11px;
+        color: var(--notion-subtle);
+        background: white;
+        border: 1px solid var(--notion-border);
+        border-radius: 6px;
+        padding: 4px 10px;
+        max-width: 340px;
+        margin: 0 auto;
+      }
+
+      /* Notion sidebar + main */
+      .notion-layout {
+        display: flex;
+        height: 520px;
+      }
+
+      .notion-sidebar {
+        width: 220px;
+        min-width: 220px;
+        background: #f7f6f3;
+        border-right: 1px solid var(--notion-border);
+        padding: 16px 0;
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+      }
+
+      .sidebar-workspace {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 16px 10px;
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--notion-text);
+        border-bottom: 1px solid var(--notion-border);
+        margin-bottom: 8px;
+      }
+
+      .workspace-icon {
+        width: 24px;
+        height: 24px;
+        background: #e8532a;
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        color: white;
+        font-weight: 700;
+      }
+
+      .sidebar-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 5px 16px;
+        font-size: 13px;
+        color: var(--notion-subtle);
+        cursor: default;
+        border-radius: 4px;
+        margin: 0 6px;
+        transition: background 0.1s;
+      }
+
+      .sidebar-item.active {
+        background: rgba(0, 0, 0, 0.05);
+        color: var(--notion-text);
+        font-weight: 500;
+      }
+
+      .sidebar-item:hover {
+        background: rgba(0, 0, 0, 0.04);
+      }
+
+      .sidebar-icon {
+        font-size: 14px;
+        width: 18px;
+        text-align: center;
+      }
+
+      .sidebar-section-label {
+        font-size: 10.5px;
+        font-weight: 600;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: #aaa;
+        padding: 10px 16px 4px;
+      }
+
+      /* Main content */
+      .notion-main {
+        flex: 1;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .notion-topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px 28px;
+        border-bottom: 1px solid var(--notion-border);
+        background: white;
+        gap: 12px;
+      }
+
+      .topbar-breadcrumb {
+        font-size: 13px;
+        color: var(--notion-subtle);
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .breadcrumb-current {
+        font-weight: 600;
+        color: var(--notion-text);
+      }
+
+      .topbar-actions {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .notion-btn-ghost {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        padding: 5px 10px;
+        font-size: 12.5px;
+        color: var(--notion-subtle);
+        background: transparent;
+        border: 1px solid transparent;
+        border-radius: 5px;
+        cursor: pointer;
+        font-family: inherit;
+        transition:
+          background 0.1s,
+          border-color 0.1s;
+      }
+      .notion-btn-ghost:hover {
+        background: var(--notion-hover);
+        border-color: var(--notion-border);
+      }
+
+      /* ← THE STAR OF THE SHOW */
+      .send-email-btn {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 14px;
+        font-size: 13px;
+        font-weight: 600;
+        color: white;
+        background: #e8532a;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-family: inherit;
+        box-shadow: 0 1px 4px rgba(232, 83, 42, 0.4);
+        transition:
+          background 0.15s,
+          transform 0.1s;
+        position: relative;
+        animation: glowPulse 3s 2s ease infinite;
+      }
+      .send-email-btn:hover {
+        background: #c94320;
+        transform: scale(1.02);
+      }
+
+      @keyframes glowPulse {
+        0%,
+        100% {
+          box-shadow: 0 1px 4px rgba(232, 83, 42, 0.4);
+        }
+        50% {
+          box-shadow: 0 2px 14px rgba(232, 83, 42, 0.65);
+        }
+      }
+
+      .send-email-icon {
+        font-size: 13px;
+      }
+
+      /* Database content */
+      .notion-content {
+        flex: 1;
+        overflow-y: auto;
+        padding: 24px 28px;
+        background: white;
+      }
+
+      .db-title-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 16px;
+      }
+
+      .db-title {
+        font-size: 22px;
+        font-weight: 700;
+        color: var(--notion-text);
+      }
+
+      .db-title-icon {
+        margin-right: 6px;
+      }
+
+      .db-view-tabs {
+        display: flex;
+        gap: 0;
+        border-bottom: 1px solid var(--notion-border);
+        margin-bottom: 0;
+      }
+
+      .db-tab {
+        padding: 7px 14px;
+        font-size: 12.5px;
+        color: var(--notion-subtle);
+        cursor: pointer;
+        border-bottom: 2px solid transparent;
+        margin-bottom: -1px;
+        font-weight: 500;
+      }
+
+      .db-tab.active {
+        color: var(--notion-text);
+        border-bottom-color: var(--notion-text);
+      }
+
+      /* Table */
+      .db-toolbar {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 0 8px;
+      }
+
+      .db-toolbar-btn {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        padding: 4px 10px;
+        font-size: 12px;
+        color: var(--notion-subtle);
+        background: transparent;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-family: inherit;
+        font-weight: 500;
+      }
+      .db-toolbar-btn:hover {
+        background: var(--notion-hover);
+      }
+
+      .table-wrap {
+        overflow-x: auto;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13px;
+      }
+
+      thead th {
+        text-align: left;
+        padding: 7px 12px;
+        font-weight: 500;
+        font-size: 11.5px;
+        color: var(--notion-subtle);
+        background: white;
+        border-bottom: 1px solid var(--notion-border);
+        white-space: nowrap;
+        letter-spacing: 0.02em;
+      }
+
+      thead th:first-child {
+        padding-left: 30px;
+      }
+
+      tbody tr {
+        border-bottom: 1px solid #f2f2f0;
+        cursor: default;
+        transition: background 0.1s;
+      }
+      tbody tr:hover {
+        background: var(--notion-hover);
+      }
+
+      tbody td {
+        padding: 8px 12px;
+        color: var(--notion-text);
+        font-size: 13px;
+        vertical-align: middle;
+      }
+
+      tbody td:first-child {
+        padding-left: 12px;
+        font-weight: 500;
+      }
+
+      .row-check {
+        width: 14px;
+        height: 14px;
+        border: 1px solid #ccc;
+        border-radius: 3px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 9px;
+        color: white;
+        flex-shrink: 0;
+      }
+
+      .row-check.checked {
+        background: var(--notion-blue);
+        border-color: var(--notion-blue);
+      }
+
+      .row-name-cell {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .page-icon {
+        font-size: 14px;
+      }
+
+      .status-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-size: 11.5px;
+        font-weight: 500;
+      }
+
+      .status-tag.sent {
+        background: #e6f7f2;
+        color: #0f7a55;
+      }
+      .status-tag.pending {
+        background: #fff4e0;
+        color: #b35d00;
+      }
+      .status-tag.draft {
+        background: #f0f0ef;
+        color: #6b6b6b;
+      }
+
+      .status-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: currentColor;
+      }
+
+      .open-rate {
+        font-variant-numeric: tabular-nums;
+        color: var(--notion-text);
+      }
+
+      .tag {
+        display: inline-flex;
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-size: 11px;
+        font-weight: 500;
+      }
+
+      .tag.blue {
+        background: #e1effe;
+        color: #2563eb;
+      }
+      .tag.purple {
+        background: #ede9fe;
+        color: #7c3aed;
+      }
+      .tag.green {
+        background: #d1fae5;
+        color: #065f46;
+      }
+      .tag.orange {
+        background: #ffedd5;
+        color: #9a3412;
+      }
+
+      /* Highlighted row */
+      tbody tr.highlighted-row {
+        background: #fff9f7 !important;
+      }
+
+      /* Floating tooltip on send button */
+      .tooltip-badge {
+        position: absolute;
+        top: -32px;
+        right: 0;
+        background: #111;
+        color: white;
+        font-size: 11px;
+        padding: 4px 10px;
+        border-radius: 6px;
+        white-space: nowrap;
+        opacity: 0;
+        animation: tooltipPop 0.4s 3.5s ease forwards;
+        pointer-events: none;
+      }
+
+      .tooltip-badge::after {
+        content: "";
+        position: absolute;
+        bottom: -5px;
+        right: 18px;
+        width: 0;
+        height: 0;
+        border-left: 5px solid transparent;
+        border-right: 5px solid transparent;
+        border-top: 5px solid #111;
+      }
+
+      @keyframes tooltipPop {
+        0% {
+          opacity: 0;
+          transform: translateY(4px);
+        }
+        20% {
+          opacity: 1;
+          transform: translateY(0);
+        }
+        80% {
+          opacity: 1;
+        }
+        100% {
+          opacity: 0;
+        }
+      }
+
+      /* ─── FEATURES STRIP ─── */
+      .features {
+        background: white;
+        border-top: 1px solid var(--warm-gray);
+        border-bottom: 1px solid var(--warm-gray);
+        padding: 56px 24px;
+      }
+
+      .features-inner {
+        max-width: 860px;
+        margin: 0 auto;
+      }
+
+      .features-label {
+        text-align: center;
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        color: var(--mid-gray);
+        margin-bottom: 40px;
+      }
+
+      .features-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 32px;
+      }
+
+      .feature-card {
+        text-align: center;
+      }
+
+      .feature-icon {
+        width: 44px;
+        height: 44px;
+        background: var(--off-white);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+        margin: 0 auto 14px;
+        border: 1px solid var(--warm-gray);
+      }
+
+      .feature-title {
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--black);
+        margin-bottom: 6px;
+      }
+
+      .feature-desc {
+        font-size: 13px;
+        color: #777;
+        line-height: 1.6;
+      }
+
+      /* ─── BETA FORM MODAL ─── */
+      .modal-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(4px);
+        z-index: 1000;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 24px;
+      }
+
+      .modal-overlay.active {
+        display: flex;
+      }
+
+      .modal {
+        background: white;
+        border-radius: 20px;
+        padding: 48px 44px;
+        max-width: 460px;
+        width: 100%;
+        box-shadow: 0 32px 80px rgba(0, 0, 0, 0.2);
+        animation: modalIn 0.3s ease;
+        position: relative;
+      }
+
+      @keyframes modalIn {
+        from {
+          opacity: 0;
+          transform: scale(0.95) translateY(16px);
+        }
+        to {
+          opacity: 1;
+          transform: scale(1) translateY(0);
+        }
+      }
+
+      .modal-close {
+        position: absolute;
+        top: 16px;
+        right: 18px;
+        background: none;
+        border: none;
+        font-size: 20px;
+        color: #aaa;
+        cursor: pointer;
+        line-height: 1;
+      }
+      .modal-close:hover {
+        color: #333;
+      }
+
+      .modal-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: #fff0ec;
+        color: var(--accent);
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        padding: 4px 10px;
+        border-radius: 100px;
+        margin-bottom: 20px;
+      }
+
+      .modal h2 {
+        font-family: "Instrument Serif", serif;
+        font-size: 28px;
+        font-weight: 400;
+        line-height: 1.2;
+        color: var(--black);
+        margin-bottom: 10px;
+      }
+
+      .modal-sub {
+        font-size: 14px;
+        color: #666;
+        line-height: 1.6;
+        margin-bottom: 32px;
+      }
+
+      .form-group {
+        margin-bottom: 16px;
+      }
+
+      label {
+        display: block;
+        font-size: 12.5px;
+        font-weight: 600;
+        color: var(--black);
+        margin-bottom: 6px;
+      }
+
+      input[type="text"],
+      input[type="email"],
+      textarea {
+        width: 100%;
+        padding: 11px 14px;
+        border: 1.5px solid var(--warm-gray);
+        border-radius: 9px;
+        font-family: "DM Sans", sans-serif;
+        font-size: 14px;
+        color: var(--black);
+        background: white;
+        outline: none;
+        transition:
+          border-color 0.18s,
+          box-shadow 0.18s;
+      }
+
+      input:focus,
+      textarea:focus {
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px rgba(232, 83, 42, 0.12);
+      }
+
+      textarea {
+        resize: vertical;
+        min-height: 80px;
+      }
+
+      .form-optional {
+        font-size: 11px;
+        color: var(--mid-gray);
+        font-weight: 400;
+        margin-left: 4px;
+      }
+
+      .btn-submit {
+        width: 100%;
+        background: var(--accent);
+        color: white;
+        border: none;
+        padding: 14px;
+        border-radius: 10px;
+        font-family: "DM Sans", sans-serif;
+        font-size: 15px;
+        font-weight: 600;
+        cursor: pointer;
+        margin-top: 8px;
+        transition:
+          background 0.18s,
+          transform 0.15s;
+      }
+      .btn-submit:hover {
+        background: var(--accent-dark);
+        transform: translateY(-1px);
+      }
+
+      .form-privacy {
+        text-align: center;
+        font-size: 11.5px;
+        color: var(--mid-gray);
+        margin-top: 12px;
+      }
+
+      /* Success state */
+      .modal-success {
+        display: none;
+        text-align: center;
+        padding: 20px 0;
+      }
+
+      .success-icon {
+        width: 64px;
+        height: 64px;
+        background: #e6f7ef;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 28px;
+        margin: 0 auto 20px;
+      }
+
+      .modal-success h3 {
+        font-family: "Instrument Serif", serif;
+        font-size: 24px;
+        font-weight: 400;
+        color: var(--black);
+        margin-bottom: 10px;
+      }
+
+      .modal-success p {
+        font-size: 14px;
+        color: #666;
+        line-height: 1.6;
+      }
+
+      /* ─── BOTTOM CTA ─── */
+      .bottom-cta {
+        padding: 100px 24px;
+        text-align: center;
+        background: var(--off-white);
+      }
+
+      .bottom-cta h2 {
+        font-family: "Instrument Serif", serif;
+        font-size: clamp(32px, 5vw, 56px);
+        font-weight: 400;
+        color: var(--black);
+        line-height: 1.1;
+        margin-bottom: 20px;
+      }
+
+      .bottom-cta p {
+        font-size: 16px;
+        color: #666;
+        margin-bottom: 40px;
+        max-width: 440px;
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      .price-note {
+        font-size: 12.5px;
+        color: var(--mid-gray);
+        margin-top: 12px;
+      }
+
+      /* ─── FOOTER ─── */
+      footer {
+        border-top: 1px solid var(--warm-gray);
+        padding: 28px 48px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-size: 12.5px;
+        color: var(--mid-gray);
+      }
+
+      /* ─── RESPONSIVE ─── */
+      @media (max-width: 680px) {
+        nav {
+          padding: 14px 20px;
+        }
+        h1 {
+          font-size: 34px;
+        }
+        .features-grid {
+          grid-template-columns: 1fr;
+          gap: 24px;
+        }
+        .notion-sidebar {
+          display: none;
+        }
+        .modal {
+          padding: 36px 24px;
+        }
+        footer {
+          flex-direction: column;
+          gap: 8px;
+          text-align: center;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- ────────── NAV ────────── -->
+    <nav>
+      <a href="#" class="nav-logo">
+        <div class="logo-dot">
+          <svg viewBox="0 0 24 24">
+            <path
+              d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"
+            />
+          </svg>
+        </div>
+        NotionMail
+      </a>
+      <a
+        class="nav-cta"
+        href="#"
+        onclick="
+          openModal();
+          trackCTA('nav');
+          return false;
+        "
+        >Join Private Beta</a
+      >
+    </nav>
+
+    <!-- ────────── HERO ────────── -->
+    <section class="hero">
+      <div class="hero-badge">
+        <span class="badge-dot"></span>
+        Private Beta · Launching Next Week
+      </div>
+
+      <h1>
+        Stop Exporting CSVs.<br /><em>Send Mass Emails</em><br />Directly From
+        Notion.
+      </h1>
+
+      <p class="hero-sub">
+        The easiest way to send newsletters, cold emails, or client updates
+        without leaving Notion. Works exactly like YAMM — built specifically for
+        Notion.
+      </p>
+
+      <div class="hero-actions">
+        <a
+          href="#"
+          class="btn-primary"
+          onclick="
+            openModal();
+            trackCTA('hero');
+            return false;
+          "
+        >
+          Get Early Access — Free Beta
+          <span class="btn-arrow">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+              <path
+                d="M2.5 6h7M6.5 3l3 3-3 3"
+                stroke="white"
+                stroke-width="1.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+          </span>
+        </a>
+        <span class="hero-social-proof"
+          >🔒 No credit card · No installs · 100% inside Notion</span
+        >
+      </div>
+    </section>
+
+    <!-- ────────── MOCKUP ────────── -->
+    <section class="mockup-section">
+      <p class="mockup-label">How it looks inside Notion</p>
+
+      <div class="mockup-wrapper">
+        <!-- Window chrome -->
+        <div class="window-chrome">
+          <div class="chrome-dot red"></div>
+          <div class="chrome-dot yellow"></div>
+          <div class="chrome-dot green"></div>
+          <div class="chrome-address">
+            notion.so / My Workspace / Email Campaigns
+          </div>
+        </div>
+
+        <!-- Notion layout -->
+        <div class="notion-layout">
+          <!-- Sidebar -->
+          <div class="notion-sidebar">
+            <div class="sidebar-workspace">
+              <div class="workspace-icon">N</div>
+              My Workspace
+            </div>
+
+            <div class="sidebar-item">
+              <span class="sidebar-icon">🏠</span> Home
+            </div>
+            <div class="sidebar-item">
+              <span class="sidebar-icon">🔍</span> Search
+            </div>
+            <div class="sidebar-item">
+              <span class="sidebar-icon">📥</span> Inbox
+            </div>
+
+            <div class="sidebar-section-label">Pages</div>
+
+            <div class="sidebar-item">
+              <span class="sidebar-icon">📋</span> Projects
+            </div>
+            <div class="sidebar-item">
+              <span class="sidebar-icon">👥</span> CRM
+            </div>
+            <div class="sidebar-item active">
+              <span class="sidebar-icon">✉️</span> Email Campaigns
+            </div>
+            <div class="sidebar-item">
+              <span class="sidebar-icon">📊</span> Analytics
+            </div>
+            <div class="sidebar-item">
+              <span class="sidebar-icon">🗓️</span> Content Calendar
+            </div>
+          </div>
+
+          <!-- Main -->
+          <div class="notion-main">
+            <!-- Top bar -->
+            <div class="notion-topbar">
+              <div class="topbar-breadcrumb">
+                My Workspace
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 14 14"
+                  fill="none"
+                  style="opacity: 0.4"
+                >
+                  <path
+                    d="M5 3l4 4-4 4"
+                    stroke="#666"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                  />
+                </svg>
+                <span class="breadcrumb-current">✉️ Email Campaigns</span>
+              </div>
+              <div class="topbar-actions">
+                <button class="notion-btn-ghost">
+                  <svg width="13" height="13" viewBox="0 0 14 14" fill="none">
+                    <circle
+                      cx="7"
+                      cy="7"
+                      r="5.5"
+                      stroke="currentColor"
+                      stroke-width="1.4"
+                    />
+                    <path
+                      d="M7 4.5v3l1.5 1.5"
+                      stroke="currentColor"
+                      stroke-width="1.4"
+                      stroke-linecap="round"
+                    />
+                  </svg>
+                  History
+                </button>
+                <button class="notion-btn-ghost">Share</button>
+                <!-- ★ THE HERO BUTTON ★ -->
+                <button
+                  class="send-email-btn"
+                  onclick="
+                    openModal();
+                    trackCTA('mockup_button');
+                    return false;
+                  "
+                >
+                  <span class="send-email-icon">✉️</span>
+                  Send Email
+                  <div class="tooltip-badge">
+                    Click to send to all 847 contacts
+                  </div>
+                </button>
+              </div>
+            </div>
+
+            <!-- Content -->
+            <div class="notion-content">
+              <div class="db-title-row">
+                <div class="db-title">
+                  <span class="db-title-icon">✉️</span>Email Campaigns
+                </div>
+              </div>
+
+              <div class="db-view-tabs">
+                <div class="db-tab active">📋 Table</div>
+                <div class="db-tab">📅 Timeline</div>
+                <div class="db-tab">📊 Board</div>
+                <div class="db-tab" style="color: #aaa; font-weight: 400">
+                  + Add view
+                </div>
+              </div>
+
+              <div class="db-toolbar">
+                <button class="db-toolbar-btn">
+                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                    <path
+                      d="M2 4h8M4 8h4"
+                      stroke="currentColor"
+                      stroke-width="1.3"
+                      stroke-linecap="round"
+                    />
+                  </svg>
+                  Filter
+                </button>
+                <button class="db-toolbar-btn">
+                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                    <path
+                      d="M3 2v8M5 4v6M7 3v7M9 5v5"
+                      stroke="currentColor"
+                      stroke-width="1.3"
+                      stroke-linecap="round"
+                    />
+                  </svg>
+                  Sort
+                </button>
+                <button
+                  class="db-toolbar-btn"
+                  style="
+                    margin-left: auto;
+                    color: var(--accent);
+                    font-weight: 600;
+                  "
+                >
+                  + New
+                </button>
+              </div>
+
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th style="width: 28px"></th>
+                      <th>Campaign Name</th>
+                      <th>Status</th>
+                      <th>Recipients</th>
+                      <th>Open Rate</th>
+                      <th>Segment</th>
+                      <th>Sent Date</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><div class="row-check checked">✓</div></td>
+                      <td>
+                        <div class="row-name-cell">
+                          <span class="page-icon">📣</span>
+                          May Product Launch
+                        </div>
+                      </td>
+                      <td>
+                        <span class="status-tag sent"
+                          ><span class="status-dot"></span>Sent</span
+                        >
+                      </td>
+                      <td>2,341</td>
+                      <td class="open-rate">48.2%</td>
+                      <td><span class="tag blue">All Users</span></td>
+                      <td style="color: #999">May 12</td>
+                    </tr>
+                    <tr class="highlighted-row">
+                      <td><div class="row-check checked">✓</div></td>
+                      <td>
+                        <div class="row-name-cell">
+                          <span class="page-icon">🚀</span>
+                          <strong>June Newsletter</strong>
+                        </div>
+                      </td>
+                      <td>
+                        <span class="status-tag pending"
+                          ><span class="status-dot"></span>Ready</span
+                        >
+                      </td>
+                      <td>847</td>
+                      <td class="open-rate">—</td>
+                      <td><span class="tag orange">Pro Users</span></td>
+                      <td style="color: #999">Scheduled</td>
+                    </tr>
+                    <tr>
+                      <td><div class="row-check"></div></td>
+                      <td>
+                        <div class="row-name-cell">
+                          <span class="page-icon">🎯</span>
+                          Cold Outreach — SaaS
+                        </div>
+                      </td>
+                      <td>
+                        <span class="status-tag draft"
+                          ><span class="status-dot"></span>Draft</span
+                        >
+                      </td>
+                      <td>512</td>
+                      <td class="open-rate">—</td>
+                      <td><span class="tag purple">Leads</span></td>
+                      <td style="color: #999">—</td>
+                    </tr>
+                    <tr>
+                      <td><div class="row-check"></div></td>
+                      <td>
+                        <div class="row-name-cell">
+                          <span class="page-icon">📬</span>
+                          Client Update — Q2
+                        </div>
+                      </td>
+                      <td>
+                        <span class="status-tag sent"
+                          ><span class="status-dot"></span>Sent</span
+                        >
+                      </td>
+                      <td>88</td>
+                      <td class="open-rate">71.0%</td>
+                      <td><span class="tag green">Clients</span></td>
+                      <td style="color: #999">Apr 30</td>
+                    </tr>
+                    <tr>
+                      <td><div class="row-check"></div></td>
+                      <td>
+                        <div class="row-name-cell">
+                          <span class="page-icon">✨</span>
+                          Onboarding Sequence
+                        </div>
+                      </td>
+                      <td>
+                        <span class="status-tag draft"
+                          ><span class="status-dot"></span>Draft</span
+                        >
+                      </td>
+                      <td>—</td>
+                      <td class="open-rate">—</td>
+                      <td><span class="tag blue">New Signups</span></td>
+                      <td style="color: #999">—</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ────────── FEATURES ────────── -->
+    <section class="features">
+      <div class="features-inner">
+        <p class="features-label">Why teams use NotionMail</p>
+        <div class="features-grid">
+          <div class="feature-card">
+            <div class="feature-icon">🗄️</div>
+            <div class="feature-title">Your database is the list</div>
+            <div class="feature-desc">
+              Filter any Notion database view and send to exactly those rows. No
+              CSV export, no copy-paste, no sync tools.
+            </div>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">🔀</div>
+            <div class="feature-title">Merge fields from columns</div>
+            <div class="feature-desc">
+              Use {{Name}}, {{Company}}, any column as a merge field.
+              Personalized at scale, all from Notion data.
+            </div>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">📈</div>
+            <div class="feature-title">Opens & clicks back in Notion</div>
+            <div class="feature-desc">
+              Track open rates, click-through, and reply data directly as
+              properties in your Notion database.
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ────────── BOTTOM CTA ────────── -->
+    <section class="bottom-cta">
+      <h2>
+        Ready to send emails<br /><em
+          style="font-style: italic; color: var(--accent)"
+          >from inside Notion?</em
+        >
+      </h2>
+      <p>
+        Join the private beta. No credit card, no installs. Just your Notion
+        workspace and a working email tool.
+      </p>
+      <a
+        href="#"
+        class="btn-primary"
+        onclick="
+          openModal();
+          trackCTA('bottom');
+          return false;
+        "
+        style="display: inline-flex; margin: 0 auto"
+      >
+        Get Early Access — Free Beta
+        <span class="btn-arrow">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+            <path
+              d="M2.5 6h7M6.5 3l3 3-3 3"
+              stroke="white"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+        </span>
+      </a>
+      <p class="price-note">Lifetime Deal · $19 · Pricing goes up at launch</p>
+    </section>
+
+    <!-- ────────── FOOTER ────────── -->
+    <footer>
+      <div
+        style="
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          font-weight: 600;
+          color: #555;
+          font-size: 13px;
+        "
+      >
+        <div
+          style="
+            width: 18px;
+            height: 18px;
+            background: var(--accent);
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+          "
+        >
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="white">
+            <path
+              d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"
+            />
+          </svg>
+        </div>
+        NotionMail
+      </div>
+      <span>© 2025 NotionMail · Not affiliated with Notion Labs</span>
+    </footer>
+
+    <!-- ────────── MODAL ────────── -->
+    <div class="modal-overlay" id="modal" onclick="handleOverlayClick(event)">
+      <div class="modal">
+        <button class="modal-close" onclick="closeModal()">×</button>
+
+        <!-- Form -->
+        <div id="formContent">
+          <div class="modal-tag">🔒 Private Beta</div>
+          <h2>We're in private beta.<br />Get in first.</h2>
+          <p class="modal-sub">
+            Enter your email to get notified when we launch next week — and lock
+            in lifetime access at our early bird price.
+          </p>
+
+          <form onsubmit="handleSubmit(event)">
+            <div class="form-group">
+              <label for="name">Name</label>
+              <input type="text" id="name" placeholder="Jane Smith" required />
+            </div>
+            <div class="form-group">
+              <label for="email">Email</label>
+              <input
+                type="email"
+                id="email"
+                placeholder="jane@company.com"
+                required
+              />
+            </div>
+            <div class="form-group">
+              <label for="use"
+                >How would you use this?
+                <span class="form-optional">optional</span></label
+              >
+              <textarea
+                id="use"
+                placeholder="e.g. Send newsletters to my audience, cold outreach to leads, client updates..."
+              ></textarea>
+            </div>
+            <button type="submit" class="btn-submit">
+              Notify Me at Launch →
+            </button>
+          </form>
+
+          <p class="form-privacy">🔐 No spam. Unsubscribe anytime.</p>
+        </div>
+
+        <!-- Success -->
+        <div class="modal-success" id="successContent">
+          <div class="success-icon">🎉</div>
+          <h3>You're on the list!</h3>
+          <p>
+            We'll email you at launch next week.<br />Expect something great in
+            your inbox.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      function openModal() {
+        document.getElementById("modal").classList.add("active");
+        document.body.style.overflow = "hidden";
+      }
+
+      function closeModal() {
+        document.getElementById("modal").classList.remove("active");
+        document.body.style.overflow = "";
+      }
+
+      function handleOverlayClick(e) {
+        if (e.target === document.getElementById("modal")) closeModal();
+      }
+
+      function handleSubmit(e) {
+        e.preventDefault();
+        // Track form submission
+        gtag("event", "form_submit", {
+          event_category: "conversion",
+          event_label: "beta_signup",
+        });
+
+        // Show success state
+        document.getElementById("formContent").style.display = "none";
+        document.getElementById("successContent").style.display = "block";
+
+        // Here you would normally POST to your backend / Mailchimp / ConvertKit
+        // fetch('/api/subscribe', { method:'POST', body: JSON.stringify({ name, email }) })
+      }
+
+      // ESC key closes modal
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") closeModal();
+      });
+    </script>
+  </body>
+</html>
